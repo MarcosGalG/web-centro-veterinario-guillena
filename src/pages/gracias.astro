@@ -1,0 +1,35 @@
+---
+/**
+ * Landing page for the contact form when JavaScript is unavailable
+ * (the API redirects here after a successful submission).
+ */
+import CircleCheck from "@lucide/astro/icons/circle-check";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { clinic } from "@/data/clinic";
+---
+
+<BaseLayout title="Mensaje enviado" description="Hemos recibido tu mensaje." noindex>
+  <section class="section">
+    <div class="container container--narrow thanks">
+      <CircleCheck size={56} aria-hidden="true" />
+      <h1>Mensaje enviado</h1>
+      <p class="lead">
+        Gracias por escribirnos. Te responderemos lo antes posible en horario de consulta. Si es
+        urgente, llámanos al
+        <a href={`tel:${clinic.phones.landline.e164}`}>{clinic.phones.landline.display}</a>.
+      </p>
+      <p><a href="/" class="btn btn--secondary">Volver al inicio</a></p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .thanks {
+    text-align: center;
+    padding-block: 2rem;
+  }
+  .thanks svg {
+    margin: 0 auto 1.25rem;
+    color: var(--green-600);
+  }
+</style>

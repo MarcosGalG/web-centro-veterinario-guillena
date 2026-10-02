@@ -1,0 +1,82 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PageHeader from "@/components/PageHeader.astro";
+import { clinic, fullAddress } from "@/data/clinic";
+import { legalOwner } from "@/data/legal";
+
+const site = (Astro.site ?? new URL("http://localhost:4321")).host;
+---
+
+<BaseLayout
+  title="Aviso legal"
+  description={`Aviso legal y condiciones de uso del sitio web del ${clinic.name}.`}
+  noindex
+>
+  <PageHeader title="Aviso legal" text={`Última actualización: ${legalOwner.lastUpdated}`} />
+
+  <section class="section">
+    <div class="container prose">
+      <h2>1. Datos identificativos</h2>
+      <p>
+        En cumplimiento de la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la
+        Información y de Comercio Electrónico (LSSI-CE), se informa de que el titular de este sitio
+        web (<strong>{site}</strong>) es:
+      </p>
+      <ul>
+        <li><strong>Titular:</strong> {legalOwner.name}</li>
+        <li><strong>NIF:</strong> {legalOwner.taxId}</li>
+        <li><strong>Nombre comercial:</strong> {clinic.name}</li>
+        <li><strong>Domicilio:</strong> {fullAddress}</li>
+        <li><strong>Teléfono:</strong> {clinic.phones.landline.display}</li>
+        <li><strong>Correo electrónico:</strong> {clinic.email}</li>
+        <li>
+          <strong>Colegio profesional:</strong>
+          {legalOwner.professionalBody}, colegiado nº
+          {legalOwner.licenseNumber}. El ejercicio de la profesión veterinaria se rige por las
+          normas deontológicas del Consejo General de Colegios Veterinarios de España.
+        </li>
+      </ul>
+
+      <h2>2. Objeto</h2>
+      <p>
+        Este sitio web tiene carácter informativo sobre los servicios de la clínica veterinaria, su
+        ubicación, horarios y medios de contacto. La información publicada no sustituye en ningún
+        caso una consulta veterinaria presencial.
+      </p>
+
+      <h2>3. Condiciones de uso</h2>
+      <p>
+        El acceso y uso del sitio atribuye la condición de usuario e implica la aceptación de estas
+        condiciones. El usuario se compromete a hacer un uso adecuado de los contenidos y a no
+        emplearlos para actividades ilícitas o contrarias a la buena fe.
+      </p>
+
+      <h2>4. Propiedad intelectual e industrial</h2>
+      <p>
+        Los textos, imágenes, logotipo y demás contenidos de este sitio son propiedad del titular o
+        se utilizan con autorización de sus propietarios. Queda prohibida su reproducción,
+        distribución o transformación sin autorización expresa, salvo para uso personal y privado.
+      </p>
+
+      <h2>5. Exclusión de responsabilidad</h2>
+      <p>
+        El titular no se responsabiliza de los daños que pudieran derivarse de interferencias,
+        interrupciones, virus o fallos en el sistema no imputables a él, ni de los contenidos de
+        sitios de terceros enlazados desde esta web (por ejemplo, Google Maps o redes sociales).
+      </p>
+
+      <h2>6. Protección de datos</h2>
+      <p>
+        El tratamiento de los datos personales facilitados a través de esta web se describe en la
+        <a href="/privacidad/">política de privacidad</a>.
+      </p>
+
+      <h2>7. Legislación aplicable</h2>
+      <p>
+        Estas condiciones se rigen por la legislación española. Para cualquier controversia, las
+        partes se someten a los juzgados y tribunales que correspondan conforme a la normativa
+        aplicable en materia de consumidores y usuarios.
+      </p>
+    </div>
+  </section>
+</BaseLayout>

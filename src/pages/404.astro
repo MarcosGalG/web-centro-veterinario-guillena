@@ -1,0 +1,40 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { clinic } from "@/data/clinic";
+---
+
+<BaseLayout title="Página no encontrada" description="Esta página no existe." noindex>
+  <section class="section">
+    <div class="container container--narrow not-found">
+      <p class="eyebrow">Error 404</p>
+      <h1>Esta página se ha escapado</h1>
+      <p class="lead">
+        No encontramos lo que buscas. Puede que el enlace esté mal escrito o que la página ya no
+        exista.
+      </p>
+      <div class="not-found__actions">
+        <a href="/" class="btn btn--primary">Ir al inicio</a>
+        <a href={`tel:${clinic.phones.landline.e164}`} class="btn btn--secondary"
+          >Llamar a la clínica</a
+        >
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found {
+    text-align: center;
+    padding-block: 2rem;
+  }
+  .not-found .eyebrow {
+    justify-content: center;
+  }
+  .not-found__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+</style>

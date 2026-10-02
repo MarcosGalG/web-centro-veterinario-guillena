@@ -1,0 +1,747 @@
+---
+import { Image } from "astro:assets";
+import Phone from "@lucide/astro/icons/phone";
+import MapPin from "@lucide/astro/icons/map-pin";
+import ArrowRight from "@lucide/astro/icons/arrow-right";
+import ArrowDown from "@lucide/astro/icons/arrow-down";
+import Check from "@lucide/astro/icons/check";
+
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Seahorse from "@/components/Seahorse.astro";
+import Bubbles from "@/components/Bubbles.astro";
+import WaveDivider from "@/components/WaveDivider.astro";
+import BrandIcon from "@/components/BrandIcon.astro";
+import ServiceIcon from "@/components/ServiceIcon.astro";
+import OpeningHours from "@/components/OpeningHours.astro";
+import OpenStatus from "@/components/OpenStatus.astro";
+import MapEmbed from "@/components/MapEmbed.astro";
+import CtaBand from "@/components/CtaBand.astro";
+import { clinic, whatsappUrl } from "@/data/clinic";
+import { featuredServices, services } from "@/data/services";
+
+import heroImage from "@/assets/hero-placeholder.jpg";
+import facadeImage from "@/assets/fachada.jpg";
+
+const description = `Clínica veterinaria en Guillena (Sevilla) con más de ${clinic.foundedYearsAgo} años de experiencia. Consultas, vacunas, cirugía, diagnóstico, tienda y servicio a domicilio. Pide cita: ${clinic.phones.landline.display}.`;
+
+/** `count` animates from zero; `text` is printed as-is. */
+const stats: { count?: number; text?: string; suffix?: string; label: string }[] = [
+  { count: clinic.foundedYearsAgo, suffix: "+", label: "años cuidando mascotas en Guillena" },
+  { count: services.length, label: "áreas de servicio en la propia clínica" },
+  {
+    text: `nº ${clinic.vet.licenseNumber}`,
+    label: "colegiado del Colegio de Veterinarios de Sevilla",
+  },
+];
+
+const values = [
+  "Te explicamos qué le pasa a tu mascota y qué opciones tienes, sin tecnicismos.",
+  "Diagnóstico en la propia clínica: radiografía, ecografía y analíticas.",
+  "Un solo veterinario de referencia que conoce a tu animal y su historial.",
+  "Presupuesto claro antes de cualquier intervención.",
+];
+---
+
+<BaseLayout title="Clínica veterinaria en Guillena" description={description}>
+  <!-- ============================ HERO ============================ -->
+  <section class="hero" data-parallax>
+    <Bubbles count={16} class="hero__bubbles" />
+    <Seahorse variant="ghost" class="hero__watermark" data-depth="26" />
+
+    <div class="container hero__inner">
+      <div class="hero__content">
+        <p class="hero__eyebrow" data-reveal="fade">
+          <span class="hero__eyebrow-line"></span>
+          Guillena · Sevilla
+        </p>
+
+        <h1 class="hero__title">
+          <span class="reveal-words">Cuidamos de tu mascota</span>
+          <em class="reveal-words" style="--reveal-delay:220ms">como si fuera nuestra</em>
+        </h1>
+
+        <p class="hero__lead" data-reveal="up" style="--reveal-delay:460ms">
+          Clínica veterinaria de confianza en Guillena desde hace más de {clinic.foundedYearsAgo} años,
+          dirigida por <strong>{clinic.vet.name}</strong>. Trato cercano, diagnóstico en el propio
+          centro y sin esperas innecesarias.
+        </p>
+
+        <div class="hero__actions" data-reveal="up" style="--reveal-delay:580ms">
+          <a href={`tel:${clinic.phones.landline.e164}`} class="btn btn--primary btn--lg magnetic">
+            <Phone size={18} aria-hidden="true" />
+            Pedir cita
+          </a>
+          <a
+            href={whatsappUrl}
+            class="btn btn--whatsapp btn--lg magnetic"
+            target="_blank"
+            rel="noopener"
+          >
+            <BrandIcon name="whatsapp" size={18} />
+            WhatsApp
+          </a>
+        </div>
+
+        <div class="hero__meta" data-reveal="fade" style="--reveal-delay:700ms">
+          <OpenStatus />
+        </div>
+      </div>
+
+      <div class="hero__media" data-reveal="zoom" style="--reveal-delay:300ms">
+        <div class="hero__blob" data-depth="-18">
+          <Image
+            src={heroImage}
+            alt="Veterinario en consulta con un perro y un gato"
+            widths={[480, 750]}
+            sizes="(min-width: 960px) 520px, 88vw"
+            loading="eager"
+            fetchpriority="high"
+          />
+        </div>
+        <div class="hero__ring" data-depth="-34" aria-hidden="true"></div>
+        <a
+          href={clinic.maps.directionsUrl}
+          class="hero__address"
+          data-depth="-46"
+          target="_blank"
+          rel="noopener"
+        >
+          <MapPin size={18} aria-hidden="true" />
+          <span>{clinic.address.street}, {clinic.address.city}</span>
+        </a>
+      </div>
+    </div>
+
+    <a class="hero__scroll" href="#sobre-nosotros" aria-label="Ir al contenido">
+      <span>Sigue bajando</span>
+      <ArrowDown size={16} aria-hidden="true" />
+    </a>
+  </section>
+
+  <!-- ============================ STATS =========================== -->
+  <section class="stats">
+    <div class="container stats__inner">
+      {
+        stats.map((stat, index) => (
+          <div class="stat" data-reveal="up" style={`--reveal-delay:${index * 90}ms`}>
+            <p class="stat__value tabular">
+              {stat.text ?? <span data-count={stat.count}>0</span>}
+              {stat.suffix}
+            </p>
+            <p class="stat__label">{stat.label}</p>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- ========================= SOBRE NOSOTROS ===================== -->
+  <section class="section about" id="sobre-nosotros">
+    <div class="container about__inner">
+      <div class="about__media" data-reveal="left">
+        <div class="about__frame">
+          <Image
+            src={facadeImage}
+            alt="Fachada del Centro Veterinario Guillena en la calle San Juan Bautista"
+            width={320}
+            densities={[1]}
+          />
+        </div>
+        <div class="about__badge is-drifting">
+          <Seahorse class="about__badge-mark" />
+          <span>Más de<br /><strong>{clinic.foundedYearsAgo} años</strong></span>
+        </div>
+      </div>
+
+      <div class="about__content">
+        <p class="eyebrow" data-reveal="up">Conócenos</p>
+        <h2 class="reveal-words">Un veterinario de barrio, con medios de clínica grande</h2>
+        <p class="lead" data-reveal="up" style="--reveal-delay:120ms">
+          Llevamos más de {clinic.foundedYearsAgo} años en la calle San Juan Bautista. Muchos de los animales
+          que atendemos hoy son hijos y nietos de los primeros que pasaron por consulta.
+        </p>
+        <ul class="check-list">
+          {
+            values.map((value, index) => (
+              <li data-reveal="up" style={`--reveal-delay:${180 + index * 80}ms`}>
+                <Check size={18} aria-hidden="true" />
+                <span>{value}</span>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="about__link" data-reveal="up" style="--reveal-delay:520ms">
+          <a href="/equipo/" class="btn btn--secondary link-arrow">
+            Conoce al equipo
+            <ArrowRight size={16} aria-hidden="true" />
+          </a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================== SERVICIOS ======================== -->
+  <WaveDivider fill="var(--ink-950)" class="wave--to-deep" />
+  <section class="section--deep services" id="servicios">
+    <Bubbles count={12} tone="light" class="services__bubbles" />
+
+    <div class="container services__inner">
+      <div class="services__intro">
+        <Seahorse variant="draw" class="services__mark" data-reveal="fade" />
+        <p class="eyebrow" data-reveal="up">Servicios</p>
+        <h2 class="reveal-words">Todo lo que tu mascota necesita, en un mismo sitio</h2>
+        <p data-reveal="up" style="--reveal-delay:140ms">
+          Desde la primera vacuna hasta los cuidados de los animales mayores. Y si venir es un
+          problema, vamos nosotros.
+        </p>
+        <a
+          href="/servicios/"
+          class="btn btn--secondary link-arrow"
+          data-reveal="up"
+          style="--reveal-delay:220ms"
+        >
+          Ver todos los servicios
+          <ArrowRight size={16} aria-hidden="true" />
+        </a>
+      </div>
+
+      <ol class="services__list">
+        {
+          featuredServices.map((service, index) => (
+            <li class="service-row" data-reveal="rise" style={`--reveal-delay:${index * 70}ms`}>
+              <a href={`/servicios/#${service.slug}`}>
+                <span class="service-row__index tabular">{String(index + 1).padStart(2, "0")}</span>
+                <span class="service-row__icon">
+                  <ServiceIcon name={service.icon} size={26} />
+                </span>
+                <span class="service-row__text">
+                  <span class="service-row__title">{service.title}</span>
+                  <span class="service-row__summary">{service.summary}</span>
+                </span>
+                <ArrowRight class="service-row__arrow" size={20} aria-hidden="true" />
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+  <WaveDivider fill="var(--ink-950)" flip class="wave--from-deep" />
+
+  <!-- ============================ VISITA ========================== -->
+  <section class="section visit">
+    <div class="container">
+      <div class="section-heading">
+        <p class="eyebrow" data-reveal="up">Dónde estamos</p>
+        <h2 class="reveal-words">Ven a vernos o llámanos</h2>
+      </div>
+      <div class="visit__grid">
+        <div class="card visit__info" data-reveal="left">
+          <h3>Horario</h3>
+          <OpeningHours showStatus />
+          <hr />
+          <h3>Contacto</h3>
+          <ul class="visit__contact">
+            <li>
+              <Phone size={18} aria-hidden="true" />
+              <a href={`tel:${clinic.phones.landline.e164}`}>{clinic.phones.landline.display}</a>
+            </li>
+            <li>
+              <Phone size={18} aria-hidden="true" />
+              <a href={`tel:${clinic.phones.mobile.e164}`}>{clinic.phones.mobile.display}</a>
+            </li>
+            <li>
+              <MapPin size={18} aria-hidden="true" />
+              <span>{clinic.address.street}, {clinic.address.postalCode} {clinic.address.city}</span
+              >
+            </li>
+          </ul>
+        </div>
+        <div data-reveal="right">
+          <MapEmbed class="visit__map" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <CtaBand />
+</BaseLayout>
+
+<style>
+  /* ============================ HERO ============================== */
+  .hero {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    padding-block: clamp(3rem, 7vw, 6rem) clamp(4rem, 8vw, 7rem);
+    background:
+      radial-gradient(80% 70% at 105% 0%, var(--red-50), transparent 58%),
+      radial-gradient(60% 60% at -10% 100%, var(--paper-deep), transparent 60%), var(--paper);
+  }
+
+  .hero :global(.hero__bubbles) {
+    z-index: 0;
+  }
+
+  /* Oversized logo bleeding off the right edge: the brand as scenery. */
+  .hero :global(.hero__watermark) {
+    position: absolute;
+    right: -14%;
+    top: -12%;
+    width: min(62vw, 720px);
+    color: var(--red-600);
+    opacity: 0.05;
+    z-index: 0;
+    transform: translate3d(var(--px, 0), var(--py, 0), 0);
+    animation: sway 18s var(--ease-in-out-swim) infinite;
+  }
+
+  .hero__inner {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: 2.5rem;
+    align-items: center;
+  }
+  @media (min-width: 960px) {
+    .hero__inner {
+      grid-template-columns: 1.06fr 0.94fr;
+      gap: 3.5rem;
+    }
+  }
+
+  .hero__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin: 0 0 1rem;
+    font-size: var(--text-xs);
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--red-700);
+  }
+  .hero__eyebrow-line {
+    width: 2.5rem;
+    height: 2px;
+    background: currentColor;
+    border-radius: 2px;
+    transform-origin: left;
+  }
+  :global(.js-motion) .hero__eyebrow.is-in .hero__eyebrow-line {
+    animation: line-grow 0.9s var(--ease-out-expo) both;
+  }
+  @keyframes line-grow {
+    from {
+      transform: scaleX(0);
+    }
+  }
+
+  .hero__title {
+    font-size: var(--text-hero);
+    font-weight: 600;
+    line-height: 1.04;
+    margin-bottom: 1.4rem;
+  }
+  .hero__title em {
+    display: block;
+    font-style: italic;
+    font-weight: 500;
+    color: var(--red-700);
+  }
+
+  .hero__lead {
+    font-size: var(--text-lg);
+    color: var(--ink-700);
+    max-width: 50ch;
+    margin-bottom: 1.9rem;
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1.9rem;
+  }
+
+  .hero__meta {
+    min-height: 2rem;
+  }
+
+  /* --- media: organic blob, offset ring, floating address ---------- */
+  .hero__media {
+    position: relative;
+    justify-self: center;
+    width: min(100%, 520px);
+    aspect-ratio: 1 / 1;
+  }
+
+  .hero__blob {
+    position: absolute;
+    inset: 6%;
+    overflow: hidden;
+    border-radius: 58% 42% 46% 54% / 46% 52% 48% 54%;
+    box-shadow: var(--shadow-lg);
+    transform: translate3d(var(--px, 0), var(--py, 0), 0);
+    animation: blob 26s var(--ease-in-out-swim) infinite;
+    z-index: 2;
+  }
+  .hero__blob img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hero__ring {
+    position: absolute;
+    inset: 0;
+    border: 2px solid var(--red-600);
+    opacity: 0.4;
+    border-radius: 46% 54% 58% 42% / 55% 44% 56% 45%;
+    transform: translate3d(var(--px, 0), var(--py, 0), 0);
+    animation: blob 26s var(--ease-in-out-swim) -4s infinite reverse;
+    z-index: 1;
+  }
+
+  .hero__address {
+    position: absolute;
+    left: 2%;
+    bottom: 4%;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    border-radius: var(--radius-full);
+    background: rgb(255 255 255 / 0.9);
+    backdrop-filter: blur(8px);
+    color: var(--ink-900);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: var(--shadow);
+    transform: translate3d(var(--px, 0), var(--py, 0), 0);
+    transition: box-shadow 0.3s var(--ease-out-soft);
+  }
+  .hero__address:hover {
+    box-shadow: var(--shadow-lg);
+    color: var(--ink-900);
+  }
+  .hero__address svg {
+    color: var(--red-600);
+  }
+
+  .hero__scroll {
+    position: relative;
+    z-index: 1;
+    display: none;
+    margin: clamp(2rem, 4vw, 3.5rem) auto 0;
+    width: max-content;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--text-xs);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-500);
+    text-decoration: none;
+  }
+  @media (min-width: 960px) {
+    .hero__scroll {
+      display: flex;
+    }
+  }
+  .hero__scroll svg {
+    animation: nudge 2.4s var(--ease-in-out-swim) infinite;
+  }
+  .hero__scroll:hover {
+    color: var(--red-700);
+  }
+  @keyframes nudge {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(5px);
+    }
+  }
+
+  /* ============================ STATS ============================= */
+  .stats {
+    background: var(--surface);
+    border-block: 1px solid var(--ink-100);
+  }
+  .stats__inner {
+    display: grid;
+    gap: 1.5rem 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+    padding-block: clamp(2rem, 4vw, 3rem);
+  }
+  .stat__value {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    font-weight: 600;
+    line-height: 1;
+    color: var(--red-700);
+    margin: 0 0 0.35rem;
+  }
+  .stat__label {
+    margin: 0;
+    color: var(--ink-500);
+    font-size: var(--text-sm);
+  }
+
+  /* ============================ ABOUT ============================= */
+  .about__inner {
+    display: grid;
+    gap: 3rem;
+    align-items: center;
+  }
+  @media (min-width: 880px) {
+    .about__inner {
+      grid-template-columns: 0.85fr 1.15fr;
+      gap: 4.5rem;
+    }
+  }
+
+  .about__media {
+    position: relative;
+    justify-self: center;
+    max-width: 330px;
+  }
+  .about__frame {
+    position: relative;
+  }
+  .about__frame::before {
+    content: "";
+    position: absolute;
+    inset: 1.5rem -1.5rem -1.5rem 1.5rem;
+    background: var(--red-100);
+    border-radius: var(--radius-lg);
+    z-index: 0;
+    transition: inset 0.6s var(--ease-out-expo);
+  }
+  .about__media:hover .about__frame::before {
+    inset: 2rem -2rem -2rem 2rem;
+  }
+  .about__frame img {
+    position: relative;
+    z-index: 1;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .about__badge {
+    position: absolute;
+    top: -1.75rem;
+    left: -1.75rem;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.75rem 1.1rem;
+    border-radius: var(--radius-full);
+    background: var(--surface);
+    box-shadow: var(--shadow-lg);
+    font-size: var(--text-xs);
+    line-height: 1.15;
+    color: var(--ink-500);
+  }
+  .about__badge strong {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    color: var(--ink-900);
+  }
+  .about__badge :global(.about__badge-mark) {
+    width: 1.75rem;
+  }
+
+  .about__link {
+    margin: 2.25rem 0 0;
+  }
+
+  /* ========================== SERVICIOS =========================== */
+  .services {
+    position: relative;
+    padding-block: clamp(3rem, 7vw, 5.5rem);
+    overflow: hidden;
+  }
+  .services :global(.services__bubbles) {
+    opacity: 0.5;
+  }
+  .services__inner {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: 2.5rem;
+    align-items: start;
+  }
+  @media (min-width: 980px) {
+    .services__inner {
+      grid-template-columns: 0.82fr 1.18fr;
+      gap: 4rem;
+    }
+    .services__intro {
+      position: sticky;
+      top: 7rem;
+    }
+  }
+  /* The mark draws itself in when the dark band comes into view. */
+  .services :global(.services__mark) {
+    width: clamp(4.5rem, 7vw, 6.5rem);
+    margin-bottom: 1.5rem;
+    --sh-body: #fff;
+    --sh-accent: var(--red-600);
+  }
+  .services__intro .eyebrow {
+    color: var(--red-600);
+  }
+  .services__intro p {
+    max-width: 42ch;
+    margin-bottom: 1.75rem;
+  }
+
+  .services__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .service-row + .service-row {
+    border-top: 1px solid rgb(255 255 255 / 0.12);
+  }
+  .service-row a {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto auto 1fr auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.4rem 1rem 1.4rem 0.5rem;
+    text-decoration: none;
+    color: #fff;
+    border-radius: var(--radius);
+    transition:
+      background-color 0.4s var(--ease-out-soft),
+      padding-left 0.4s var(--ease-out-expo);
+  }
+  .service-row a:hover,
+  .service-row a:focus-visible {
+    background: rgb(255 255 255 / 0.05);
+    padding-left: 1.25rem;
+    color: #fff;
+  }
+  .service-row__index {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--red-600);
+    letter-spacing: 0.05em;
+  }
+  .service-row__icon {
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: var(--radius);
+    background: rgb(255 255 255 / 0.07);
+    border: 1px solid rgb(255 255 255 / 0.1);
+    color: #fff;
+    flex: none;
+    transition:
+      background-color 0.4s var(--ease-out-soft),
+      transform 0.5s var(--ease-out-expo);
+  }
+  .service-row a:hover .service-row__icon {
+    background: var(--red-600);
+    transform: translateY(-3px) rotate(-5deg);
+  }
+  .service-row__text {
+    display: grid;
+    gap: 0.15rem;
+  }
+  .service-row__title {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: 600;
+    font-variation-settings: "opsz" 48;
+  }
+  .service-row__summary {
+    font-size: var(--text-sm);
+    color: var(--ink-300);
+  }
+  .service-row :global(.service-row__arrow) {
+    color: var(--red-600);
+    opacity: 0;
+    transform: translateX(-8px);
+    transition:
+      opacity 0.35s var(--ease-out-soft),
+      transform 0.45s var(--ease-out-expo);
+  }
+  .service-row a:hover :global(.service-row__arrow),
+  .service-row a:focus-visible :global(.service-row__arrow) {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  @media (max-width: 560px) {
+    .service-row a {
+      grid-template-columns: auto 1fr;
+      gap: 0.75rem 1rem;
+    }
+    .service-row__index {
+      display: none;
+    }
+    .service-row :global(.service-row__arrow) {
+      display: none;
+    }
+  }
+
+  /* The waves flanking the dark band sit flush against it. */
+  .wave--to-deep {
+    margin-bottom: -1px;
+  }
+  .wave--from-deep {
+    margin-top: -1px;
+  }
+
+  /* ============================ VISITA ============================ */
+  .visit__grid {
+    display: grid;
+    gap: 1.5rem;
+  }
+  @media (min-width: 880px) {
+    .visit__grid {
+      grid-template-columns: 0.8fr 1.2fr;
+    }
+  }
+  .visit__info h3 {
+    font-size: var(--text-lg);
+    margin-bottom: 0.75rem;
+  }
+  .visit__contact {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.6rem;
+  }
+  .visit__contact li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+  .visit__contact svg {
+    flex: none;
+    color: var(--red-600);
+    margin-top: 0.2em;
+  }
+  .visit__contact a {
+    color: var(--ink-900);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .visit__contact a:hover {
+    color: var(--red-700);
+  }
+  .visit__map {
+    min-height: 340px;
+  }
+</style>

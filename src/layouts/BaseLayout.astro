@@ -1,0 +1,177 @@
+---
+import { ClientRouter } from "astro:transitions";
+
+import "@fontsource-variable/inter";
+import "@fontsource-variable/fraunces";
+import "@/styles/global.css";
+import "@/styles/motion.css";
+
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import WhatsAppButton from "@/components/WhatsAppButton.astro";
+import { clinic, type Weekday } from "@/data/clinic";
+
+interface Props {
+  /** Page title without the site name; the layout appends it. */
+  title: string;
+  description: string;
+  /** Absolute or root-relative path to a social sharing image. Defaults to /og-image.jpg. */
+  image?: string;
+  /** Set to true on pages that should not be indexed (thank-you, legal). */
+  noindex?: boolean;
+}
+
+const { title, description, image = "/og-image.jpg", noindex = false } = Astro.props;
+
+const site = Astro.site ?? new URL("http://localhost:4321");
+const canonical = new URL(Astro.url.pathname, site);
+const ogImage = new URL(image, site);
+const fullTitle = `${title} · ${clinic.name}`;
+
+// Structured data so Google can show hours, phone and address directly in results.
+// https://schema.org/VeterinaryCare
+const dayMap: Record<Weekday, string> = {
+  mon: "Monday",
+  tue: "Tuesday",
+  wed: "Wednesday",
+  thu: "Thursday",
+  fri: "Friday",
+  sat: "Saturday",
+  sun: "Sunday",
+};
+const openingHours = (Object.keys(clinic.hours) as Weekday[]).flatMap((day) =>
+  clinic.hours[day].map((range) => ({
+    "@type": "OpeningHoursSpecification",
+    dayOfWeek: dayMap[day],
+    opens: range.open,
+    closes: range.close,
+  })),
+);
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "VeterinaryCare",
+  "@id": `${site.origin}/#clinic`,
+  name: clinic.name,
+  url: site.origin + "/",
+  image: ogImage.href,
+  logo: new URL("/icon-512.png", site).href,
+  telephone: clinic.phones.landline.e164,
+  email: clinic.email,
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: clinic.address.street,
+    postalCode: clinic.address.postalCode,
+    addressLocality: clinic.address.city,
+    addressRegion: clinic.address.province,
+    addressCountry: clinic.address.country,
+  },
+  geo: {
+    "@type": "GeoCoordinates",
+    latitude: clinic.geo.lat,
+    longitude: clinic.geo.lng,
+  },
+  hasMap: clinic.maps.placeUrl,
+  openingHoursSpecification: openingHours,
+  sameAs: [clinic.social.facebook, clinic.social.instagram],
+  areaServed: clinic.serviceArea.map((name) => ({ "@type": "Place", name })),
+  founder: {
+    "@type": "Person",
+    name: clinic.vet.name,
+    jobTitle: "Veterinario",
+  },
+  priceRange: "€€",
+};
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical.href} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#b3191f" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={clinic.name} />
+    <meta property="og:locale" content="es_ES" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical.href} />
+    <meta property="og:image" content={ogImage.href} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage.href} />
+
+    <meta name="geo.region" content="ES-SE" />
+    <meta name="geo.placename" content={clinic.address.city} />
+    <meta name="geo.position" content={`${clinic.geo.lat};${clinic.geo.lng}`} />
+    <meta name="ICBM" content={`${clinic.geo.lat}, ${clinic.geo.lng}`} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+    {
+      /* Opt into the animated starting states before first paint, so nothing
+        flashes in and out. Anyone without JS, or who asked for less motion,
+        simply gets the finished layout. */
+    }
+    <script is:inline>
+      if (
+        "IntersectionObserver" in window &&
+        !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ) {
+        document.documentElement.classList.add("js-motion");
+      }
+    </script>
+
+    <ClientRouter />
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Saltar al contenido</a>
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+    <WhatsAppButton />
+
+    <script>
+      import { initMotion } from "@/scripts/motion";
+
+      initMotion();
+      // View transitions swap the DOM, so new content needs wiring up again.
+      document.addEventListener("astro:page-load", () => initMotion());
+    </script>
+  </body>
+</html>
+
+<style>
+  .skip-link {
+    position: absolute;
+    left: 1rem;
+    top: -4rem;
+    z-index: 100;
+    padding: 0.6rem 1rem;
+    background: var(--ink-900);
+    color: #fff;
+    border-radius: var(--radius-sm);
+    transition: top 0.15s var(--ease);
+  }
+  .skip-link:focus {
+    top: 1rem;
+  }
+</style>

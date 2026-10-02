@@ -1,12 +1,32 @@
-venv/
-env/
+# Dependencies
+node_modules/
 
-__pycache__/
-*.pyc
+# Build output
+dist/
+.astro/
 
-db.sqlite3
+# Environment variables (never commit secrets)
+.env
+.env.*
+!.env.example
 
-media/
+# Cloudflare / Wrangler local state
+.wrangler/
+.dev.vars
 
+# Editors and OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
 .DS_Store
 Thumbs.db
+
+# Logs
+npm-debug.log*
+*.log
+
+# Local scratch (originals kept out of the repo until real photos arrive)
+_old_assets/
+
+# Local tooling
+.claude/

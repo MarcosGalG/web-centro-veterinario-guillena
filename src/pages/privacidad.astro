@@ -1,0 +1,106 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PageHeader from "@/components/PageHeader.astro";
+import { clinic, fullAddress } from "@/data/clinic";
+import { legalOwner } from "@/data/legal";
+---
+
+<BaseLayout
+  title="Política de privacidad"
+  description={`Cómo trata el ${clinic.name} los datos personales recogidos a través de su sitio web.`}
+  noindex
+>
+  <PageHeader
+    title="Política de privacidad"
+    text={`Última actualización: ${legalOwner.lastUpdated}`}
+  />
+
+  <section class="section">
+    <div class="container prose">
+      <p class="lead">
+        Esta web recoge muy pocos datos: solo los que tú nos envías a través del formulario de
+        contacto. No usamos cookies de seguimiento ni herramientas de analítica.
+      </p>
+
+      <h2>1. Responsable del tratamiento</h2>
+      <ul>
+        <li><strong>Identidad:</strong> {legalOwner.name} ({clinic.name})</li>
+        <li><strong>NIF:</strong> {legalOwner.taxId}</li>
+        <li><strong>Dirección:</strong> {fullAddress}</li>
+        <li><strong>Correo electrónico:</strong> {clinic.email}</li>
+        <li><strong>Teléfono:</strong> {clinic.phones.landline.display}</li>
+      </ul>
+
+      <h2>2. Qué datos recogemos y para qué</h2>
+      <p>
+        A través del <strong>formulario de contacto</strong> recogemos tu nombre, correo electrónico,
+        teléfono (opcional), información sobre tu mascota (opcional) y el mensaje que nos escribes. Los
+        usamos únicamente para responder a tu consulta y, si procede, gestionar una cita.
+      </p>
+      <p>
+        Si nos contactas por <strong>teléfono, WhatsApp o correo electrónico</strong>, el
+        tratamiento de esos datos se rige por las condiciones de cada servicio y por esta misma
+        finalidad.
+      </p>
+
+      <h2>3. Base legal</h2>
+      <p>
+        El tratamiento se basa en tu <strong>consentimiento</strong> (artículo 6.1.a del RGPD), que prestas
+        al marcar la casilla del formulario, y en la <strong
+          >aplicación de medidas precontractuales</strong
+        > a petición tuya (artículo 6.1.b) cuando solicitas cita o presupuesto.
+      </p>
+
+      <h2>4. Destinatarios</h2>
+      <p>
+        No cedemos tus datos a terceros, salvo obligación legal. Para el envío del formulario
+        utilizamos proveedores tecnológicos que actúan como encargados del tratamiento:
+      </p>
+      <ul>
+        <li>
+          <strong>Cloudflare, Inc.</strong> (alojamiento de la web y procesado del formulario).
+        </li>
+        <li><strong>Resend</strong> (envío del correo electrónico con tu mensaje a la clínica).</li>
+      </ul>
+      <p>
+        Estos proveedores pueden tratar datos fuera del Espacio Económico Europeo bajo las garantías
+        previstas en el RGPD (cláusulas contractuales tipo o decisiones de adecuación).
+      </p>
+
+      <h2>5. Conservación</h2>
+      <p>
+        Conservamos los mensajes el tiempo necesario para atender tu consulta y, como máximo, un año
+        desde el último contacto, salvo que pases a ser cliente de la clínica, en cuyo caso tus
+        datos se incorporan a tu ficha clínica con los plazos legales que le corresponden.
+      </p>
+
+      <h2>6. Tus derechos</h2>
+      <p>
+        Puedes ejercer tus derechos de acceso, rectificación, supresión, oposición, limitación y
+        portabilidad escribiendo a <a href={`mailto:${clinic.email}`}>{clinic.email}</a> o por correo
+        postal a la dirección indicada, adjuntando copia de un documento identificativo. También puedes
+        presentar una reclamación ante la
+        <a href="https://www.aepd.es" target="_blank" rel="noopener"
+          >Agencia Española de Protección de Datos</a
+        >.
+      </p>
+
+      <h2>7. Cookies</h2>
+      <p>
+        Esta web <strong>no instala cookies</strong> propias ni de análisis. El mapa de Google Maps solo
+        se carga cuando pulsas el botón «Ver mapa»; en ese momento Google puede instalar sus propias cookies
+        conforme a su
+        <a href="https://policies.google.com/privacy" target="_blank" rel="noopener"
+          >política de privacidad</a
+        >. Si activas la verificación anti-spam (Cloudflare Turnstile), esta puede usar
+        almacenamiento técnico estrictamente necesario para su funcionamiento.
+      </p>
+
+      <h2>8. Menores</h2>
+      <p>
+        El formulario está dirigido a personas mayores de 14 años. Si eres menor, pide a tu madre,
+        padre o tutor que contacte con nosotros.
+      </p>
+    </div>
+  </section>
+</BaseLayout>

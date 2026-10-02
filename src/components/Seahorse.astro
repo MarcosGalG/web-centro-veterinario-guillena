@@ -1,0 +1,113 @@
+---
+/**
+ * The clinic's seahorse mark, inlined as SVG so it can be coloured and
+ * animated. Traced from the original logo artwork.
+ *
+ * Variants:
+ *   solid   — the logo as-is (header, footer).
+ *   draw    — outline that draws itself in, then fills. Used once, in the hero.
+ *   ghost   — oversized, very low contrast; a watermark behind content.
+ */
+import logo from "@/assets/logo-seahorse.svg?raw";
+
+interface Props {
+  variant?: "solid" | "draw" | "ghost";
+  class?: string;
+  /** Accessible label; omit for decorative use. */
+  label?: string;
+  [key: `data-${string}`]: string | undefined;
+}
+
+const { variant = "solid", class: className, label, ...rest } = Astro.props;
+
+// Astro inlines the file; strip the wrapper so we control the attributes here.
+const inner = logo.replace(/^[\s\S]*?<svg[^>]*>/, "").replace(/<\/svg>\s*$/, "");
+const viewBox = logo.match(/viewBox="([^"]+)"/)?.[1] ?? "0 0 462 711";
+---
+
+<svg
+  class:list={["seahorse", `seahorse--${variant}`, className]}
+  viewBox={viewBox}
+  role={label ? "img" : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : "true"}
+  {...rest}
+  set:html={inner}
+/>
+
+<style>
+  .seahorse {
+    display: block;
+    height: auto;
+    overflow: visible;
+  }
+
+  /* Colours come from the traced file; these let sections override them. */
+  .seahorse :global(.sh-body) {
+    fill: var(--sh-body, #1b1917);
+  }
+  .seahorse :global(.sh-accent) {
+    fill: var(--sh-accent, #b3191f);
+  }
+
+  /* --- draw: outline traces itself, then the fill fades up ---------- */
+  .seahorse--draw :global(path) {
+    stroke: currentColor;
+    stroke-width: 1.5;
+    fill-opacity: 0;
+  }
+  .seahorse--draw :global(.sh-body) {
+    stroke: var(--sh-body, #1b1917);
+  }
+  .seahorse--draw :global(.sh-accent) {
+    stroke: var(--sh-accent, #b3191f);
+  }
+
+  :global(.js-motion) .seahorse--draw :global(path) {
+    stroke-dasharray: var(--len, 4000);
+    stroke-dashoffset: var(--len, 4000);
+  }
+  :global(.js-motion) .seahorse--draw.is-in :global(path) {
+    animation:
+      draw-stroke 2.4s var(--ease-out-soft) forwards,
+      sh-fill 1.1s var(--ease-out-soft) 1.5s forwards;
+  }
+  :global(.js-motion) .seahorse--draw.is-in :global(.sh-accent) {
+    animation-delay: 0.35s, 1.85s;
+  }
+
+  @keyframes sh-fill {
+    to {
+      fill-opacity: 1;
+      stroke-opacity: 0;
+    }
+  }
+
+  /* --- ghost: watermark -------------------------------------------- */
+  .seahorse--ghost :global(.sh-body),
+  .seahorse--ghost :global(.sh-accent) {
+    fill: currentColor;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(.js-motion) .seahorse--draw :global(path) {
+      stroke-dashoffset: 0;
+      fill-opacity: 1;
+      stroke-opacity: 0;
+      animation: none !important;
+    }
+  }
+</style>
+
+<script>
+  // Each traced path has a different length; measuring it keeps the draw-in
+  // speed consistent instead of guessing a single dash length.
+  function measure(root: ParentNode = document) {
+    root.querySelectorAll<SVGPathElement>(".seahorse--draw path").forEach((path) => {
+      const length = Math.ceil(path.getTotalLength());
+      path.style.setProperty("--len", String(length));
+    });
+  }
+  measure();
+  document.addEventListener("astro:page-load", () => measure());
+</script>

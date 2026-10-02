@@ -1,0 +1,67 @@
+---
+/**
+ * Curved separator between sections.
+ *
+ * One long asymmetric swell rather than a symmetric wave, so it reads as a
+ * drawn line from the brand's world rather than a stock divider. A hairline
+ * in the accent colour traces just above the crest.
+ */
+interface Props {
+  /** Flip vertically (use below a section rather than above it). */
+  flip?: boolean;
+  /** Colour of the section this divider introduces. */
+  fill?: string;
+  /** Colour of the hairline riding the crest. */
+  line?: string;
+  class?: string;
+}
+
+const {
+  flip = false,
+  fill = "var(--paper)",
+  line = "var(--red-600)",
+  class: className,
+} = Astro.props;
+
+// A single swell: shallow on the left, rising to a crest at ~62%.
+const CREST = "M0,78 C260,96 470,74 700,44 C930,14 1160,6 1440,34";
+---
+
+<div
+  class:list={["wave", { "wave--flip": flip }, className]}
+  aria-hidden="true"
+  style={`--wave-fill:${fill};--wave-line:${line}`}
+>
+  <svg viewBox="0 0 1440 110" preserveAspectRatio="none" focusable="false">
+    <path class="wave__line" d={CREST} vector-effect="non-scaling-stroke"></path>
+    <path class="wave__body" d={`${CREST} L1440,110 L0,110 Z`}></path>
+  </svg>
+</div>
+
+<style>
+  .wave {
+    position: relative;
+    line-height: 0;
+    pointer-events: none;
+  }
+  .wave svg {
+    display: block;
+    width: 100%;
+    height: clamp(44px, 6vw, 88px);
+    overflow: visible;
+  }
+  .wave--flip svg {
+    transform: scaleY(-1);
+  }
+  .wave__body {
+    fill: var(--wave-fill);
+  }
+  .wave__line {
+    fill: none;
+    stroke: var(--wave-line);
+    stroke-width: 2;
+    stroke-linecap: round;
+    opacity: 0.5;
+    transform: translateY(-9px);
+  }
+</style>

@@ -1,0 +1,148 @@
+---
+import Phone from "@lucide/astro/icons/phone";
+import Mail from "@lucide/astro/icons/mail";
+import MapPin from "@lucide/astro/icons/map-pin";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PageHeader from "@/components/PageHeader.astro";
+import ContactForm from "@/components/ContactForm.astro";
+import OpeningHours from "@/components/OpeningHours.astro";
+import MapEmbed from "@/components/MapEmbed.astro";
+import BrandIcon from "@/components/BrandIcon.astro";
+import { clinic, whatsappUrl } from "@/data/clinic";
+
+const description = `Contacta con el ${clinic.name}: ${clinic.address.street}, ${clinic.address.city}. Teléfono ${clinic.phones.landline.display}, WhatsApp ${clinic.phones.mobile.display}. Horario y cómo llegar.`;
+---
+
+<BaseLayout title="Contacto y cita previa" description={description}>
+  <PageHeader
+    eyebrow="Contacto"
+    title="Pide cita o consúltanos"
+    text="La forma más rápida es llamar o escribir por WhatsApp. Si prefieres, déjanos un mensaje y te respondemos en horario de consulta."
+  />
+
+  <section class="section">
+    <div class="container contact">
+      <div class="contact__main" data-reveal="up">
+        <div class="card">
+          <h2 class="contact__form-title">Escríbenos</h2>
+          <ContactForm />
+        </div>
+      </div>
+
+      <aside class="contact__aside">
+        <div class="card" data-reveal="right" style="--reveal-delay:120ms">
+          <h2 class="contact__aside-title">Datos de contacto</h2>
+          <ul class="contact__list">
+            <li>
+              <Phone size={20} aria-hidden="true" />
+              <div>
+                <a href={`tel:${clinic.phones.landline.e164}`}>{clinic.phones.landline.display}</a>
+                <span>Teléfono fijo</span>
+              </div>
+            </li>
+            <li>
+              <BrandIcon name="whatsapp" size={20} />
+              <div>
+                <a href={whatsappUrl} target="_blank" rel="noopener"
+                  >{clinic.phones.mobile.display}</a
+                >
+                <span>Móvil y WhatsApp</span>
+              </div>
+            </li>
+            <li>
+              <Mail size={20} aria-hidden="true" />
+              <div>
+                <a href={`mailto:${clinic.email}`}>{clinic.email}</a>
+                <span>Correo electrónico</span>
+              </div>
+            </li>
+            <li>
+              <MapPin size={20} aria-hidden="true" />
+              <div>
+                <a href={clinic.maps.directionsUrl} target="_blank" rel="noopener"
+                  >{clinic.address.street}</a
+                >
+                <span
+                  >{clinic.address.postalCode}
+                  {clinic.address.city}, {clinic.address.province}</span
+                >
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <div class="card" data-reveal="right" style="--reveal-delay:220ms">
+          <h2 class="contact__aside-title">Horario</h2>
+          <OpeningHours showStatus />
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section section--surface section--tight">
+    <div class="container">
+      <div class="section-heading">
+        <p class="eyebrow" data-reveal="up">Cómo llegar</p>
+        <h2 class="reveal-words">Estamos en el centro de Guillena</h2>
+      </div>
+      <div data-reveal="zoom">
+        <MapEmbed />
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .contact {
+    display: grid;
+    gap: 1.5rem;
+    align-items: start;
+  }
+  @media (min-width: 900px) {
+    .contact {
+      grid-template-columns: 1.3fr 0.7fr;
+      gap: 2rem;
+    }
+  }
+  .contact__form-title,
+  .contact__aside-title {
+    font-size: var(--text-xl);
+    margin-bottom: 1rem;
+  }
+  .contact__aside {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .contact__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 1rem;
+  }
+  .contact__list li {
+    display: flex;
+    gap: 0.85rem;
+    align-items: flex-start;
+  }
+  .contact__list svg {
+    flex: none;
+    color: var(--red-600);
+    margin-top: 0.15rem;
+  }
+  .contact__list div {
+    display: grid;
+  }
+  .contact__list a {
+    font-weight: 600;
+    color: var(--ink-900);
+    text-decoration: none;
+  }
+  .contact__list a:hover {
+    color: var(--red-700);
+  }
+  .contact__list span {
+    font-size: var(--text-xs);
+    color: var(--ink-500);
+  }
+</style>

@@ -1,0 +1,252 @@
+---
+import { Image } from "astro:assets";
+import HeartHandshake from "@lucide/astro/icons/heart-handshake";
+import MessageCircle from "@lucide/astro/icons/message-circle";
+import Microscope from "@lucide/astro/icons/microscope";
+import Clock from "@lucide/astro/icons/clock";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PageHeader from "@/components/PageHeader.astro";
+import CtaBand from "@/components/CtaBand.astro";
+import Seahorse from "@/components/Seahorse.astro";
+import WaveDivider from "@/components/WaveDivider.astro";
+import { clinic } from "@/data/clinic";
+import { team } from "@/data/team";
+
+const description = `Conoce al equipo del ${clinic.name}: ${clinic.vet.name}, veterinario colegiado nº ${clinic.vet.licenseNumber} en Sevilla, y el resto del equipo que atiende la clínica desde hace más de ${clinic.foundedYearsAgo} años.`;
+
+const principles = [
+  {
+    icon: MessageCircle,
+    title: "Hablamos claro",
+    text: "Te explicamos el diagnóstico, las opciones y el coste antes de hacer nada. Sin sorpresas.",
+  },
+  {
+    icon: HeartHandshake,
+    title: "Trato cercano",
+    text: "Conocemos a tu mascota por su nombre y a ti también. Eso también es medicina.",
+  },
+  {
+    icon: Microscope,
+    title: "Medios propios",
+    text: "Radiografía, ecografía y laboratorio en la clínica para no hacerte esperar por un resultado.",
+  },
+  {
+    icon: Clock,
+    title: "Tiempo para cada paciente",
+    text: "Trabajamos con cita previa para dedicar a cada consulta el tiempo que necesita.",
+  },
+];
+
+const initials = (name: string) =>
+  name
+    .split(" ")
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("");
+---
+
+<BaseLayout title="Equipo" description={description}>
+  <PageHeader
+    eyebrow="Equipo"
+    title="Las personas detrás de la clínica"
+    text={`Más de ${clinic.foundedYearsAgo} años atendiendo a las mascotas de Guillena y alrededores con un mismo criterio: hacer por tu animal lo que haríamos por el nuestro.`}
+  />
+
+  <section class="section">
+    <div class="container team">
+      {
+        team.map((member, index) => (
+          <article class="member" data-reveal="rise" style={`--reveal-delay:${index * 120}ms`}>
+            <div class="member__photo">
+              {member.photo ? (
+                <Image
+                  src={member.photo}
+                  alt={`Foto de ${member.name}`}
+                  width={480}
+                  height={560}
+                  densities={[1, 2]}
+                />
+              ) : (
+                <>
+                  <span class="member__initials" aria-hidden="true">
+                    {initials(member.name)}
+                  </span>
+                  <Seahorse class="member__mark is-drifting" />
+                </>
+              )}
+            </div>
+            <div class="member__body">
+              <h2>{member.name}</h2>
+              <p class="member__role">{member.role}</p>
+              {member.credentials && <p class="member__credentials">{member.credentials}</p>}
+              <p class="member__bio">{member.bio}</p>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <WaveDivider fill="var(--ink-950)" />
+  <section class="section--deep principles">
+    <div class="container">
+      <div class="section-heading">
+        <p class="eyebrow" data-reveal="up">Cómo trabajamos</p>
+        <h2 class="reveal-words">Lo que puedes esperar de nosotros</h2>
+      </div>
+      <ol class="principles__list">
+        {
+          principles.map(({ icon: Icon, title, text }, index) => (
+            <li class="principle" data-reveal="up" style={`--reveal-delay:${index * 90}ms`}>
+              <span class="principle__icon">
+                <Icon size={24} stroke-width={1.75} aria-hidden="true" />
+              </span>
+              <div>
+                <h3>{title}</h3>
+                <p>{text}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  {
+    /* No divider here: the principles band and the call to action share the
+      same dark ground, so they read as one closing block. */
+  }
+  <CtaBand
+    title="¿Primera visita?"
+    text="Llámanos y te contamos cómo funciona, qué traer y cuánto cuesta. Sin compromiso."
+  />
+</BaseLayout>
+
+<style>
+  .team {
+    display: grid;
+    gap: 2rem;
+  }
+
+  .member {
+    display: grid;
+    gap: 0;
+    background: var(--surface);
+    border: 1px solid var(--ink-100);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition:
+      transform 0.6s var(--ease-out-expo),
+      box-shadow 0.6s var(--ease-out-expo);
+  }
+  .member:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+  @media (min-width: 760px) {
+    .member {
+      grid-template-columns: 300px 1fr;
+    }
+  }
+
+  .member__photo {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: 280px;
+    background:
+      radial-gradient(circle at 30% 25%, #fff, transparent 55%),
+      linear-gradient(155deg, var(--red-50), var(--red-100));
+    overflow: hidden;
+  }
+  .member__photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .member__initials {
+    font-family: var(--font-display);
+    font-size: 4.5rem;
+    font-weight: 600;
+    color: var(--red-700);
+    opacity: 0.35;
+  }
+  .member__photo :global(.member__mark) {
+    position: absolute;
+    right: -12%;
+    bottom: -14%;
+    width: 62%;
+    opacity: 0.12;
+  }
+
+  .member__body {
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+  }
+  .member__body h2 {
+    margin-bottom: 0.25rem;
+  }
+  .member__role {
+    font-weight: 600;
+    color: var(--red-700);
+    margin-bottom: 0.25rem;
+  }
+  .member__credentials {
+    font-size: var(--text-sm);
+    color: var(--ink-500);
+    margin-bottom: 1rem;
+  }
+  .member__bio {
+    margin-bottom: 0;
+    color: var(--ink-700);
+  }
+
+  /* ---------------- principles ---------------- */
+  .principles {
+    padding-block: clamp(3rem, 7vw, 5rem);
+  }
+  .principles .section-heading {
+    margin-bottom: clamp(2rem, 4vw, 3rem);
+  }
+  .principles .eyebrow {
+    color: var(--red-600);
+  }
+  .principles__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 2rem 3rem;
+    counter-reset: principle;
+  }
+  @media (min-width: 720px) {
+    .principles__list {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .principle {
+    display: flex;
+    gap: 1.1rem;
+    align-items: flex-start;
+  }
+  .principle__icon {
+    display: grid;
+    place-items: center;
+    width: 3.25rem;
+    height: 3.25rem;
+    flex: none;
+    border-radius: 58% 42% 46% 54% / 46% 52% 48% 54%;
+    background: rgb(255 255 255 / 0.07);
+    border: 1px solid rgb(255 255 255 / 0.12);
+    color: #fff;
+    animation: blob 22s var(--ease-in-out-swim) infinite;
+  }
+  .principle h3 {
+    font-size: var(--text-lg);
+    margin-bottom: 0.35rem;
+  }
+  .principle p {
+    margin: 0;
+    color: var(--ink-300);
+  }
+</style>

@@ -1,0 +1,373 @@
+---
+import Phone from "@lucide/astro/icons/phone";
+import Menu from "@lucide/astro/icons/menu";
+import X from "@lucide/astro/icons/x";
+import Seahorse from "@/components/Seahorse.astro";
+import { clinic } from "@/data/clinic";
+
+const links = [
+  { href: "/", label: "Inicio" },
+  { href: "/servicios/", label: "Servicios" },
+  { href: "/equipo/", label: "Equipo" },
+  { href: "/contacto/", label: "Contacto" },
+];
+
+const current = Astro.url.pathname;
+const isActive = (href: string) => (href === "/" ? current === "/" : current.startsWith(href));
+---
+
+<header class="header" data-header transition:persist>
+  <div class="container header__inner">
+    <a href="/" class="brand" aria-label={`${clinic.name}, inicio`}>
+      <Seahorse class="brand__mark" />
+      <span class="brand__text">
+        <span class="brand__name">Centro Veterinario</span>
+        <span class="brand__city">Guillena</span>
+      </span>
+    </a>
+
+    <button
+      class="nav-toggle"
+      type="button"
+      aria-expanded="false"
+      aria-controls="site-nav"
+      aria-label="Abrir menú"
+    >
+      <Menu class="nav-toggle__open" size={26} aria-hidden="true" />
+      <X class="nav-toggle__close" size={26} aria-hidden="true" />
+    </button>
+
+    <nav id="site-nav" class="nav" aria-label="Principal">
+      <ul class="nav__list" data-nav-list>
+        <li class="nav__pill" data-nav-pill aria-hidden="true"></li>
+        {
+          links.map(({ href, label }, index) => (
+            <li style={`--i:${index}`}>
+              <a href={href} class="nav__link" aria-current={isActive(href) ? "page" : undefined}>
+                {label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <a
+        href={`tel:${clinic.phones.landline.e164}`}
+        class="btn btn--primary btn--sm nav__cta magnetic"
+        data-magnet-strength="0.18"
+        style={`--i:${links.length}`}
+      >
+        <Phone size={16} aria-hidden="true" />
+        <span>{clinic.phones.landline.display}</span>
+      </a>
+    </nav>
+  </div>
+  <div class="header__progress" aria-hidden="true"></div>
+</header>
+
+<script>
+  function setupHeader() {
+    const header = document.querySelector<HTMLElement>("[data-header]");
+    const toggle = header?.querySelector<HTMLButtonElement>(".nav-toggle");
+    const nav = header?.querySelector<HTMLElement>("#site-nav");
+    if (!header || !toggle || !nav) return;
+
+    const setOpen = (open: boolean) => {
+      toggle.setAttribute("aria-expanded", String(open));
+      toggle.setAttribute("aria-label", open ? "Cerrar menú" : "Abrir menú");
+      nav.classList.toggle("is-open", open);
+    };
+
+    if (!header.dataset.wired) {
+      toggle.addEventListener("click", () =>
+        setOpen(toggle.getAttribute("aria-expanded") !== "true"),
+      );
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") setOpen(false);
+      });
+      window.matchMedia("(min-width: 860px)").addEventListener("change", (mq) => {
+        if (mq.matches) setOpen(false);
+      });
+
+      // Condense the header once the page has scrolled past the hero's top.
+      const onScroll = () => header.classList.toggle("is-scrolled", window.scrollY > 24);
+      window.addEventListener("scroll", onScroll, { passive: true });
+      onScroll();
+
+      header.dataset.wired = "true";
+    }
+
+    setOpen(false);
+
+    // Slide the highlight pill under the current link; on hover it follows the
+    // pointer and springs back on leave.
+    const list = header.querySelector<HTMLElement>("[data-nav-list]");
+    const pill = header.querySelector<HTMLElement>("[data-nav-pill]");
+    if (!list || !pill) return;
+
+    const moveTo = (link: HTMLElement | null) => {
+      if (!link) {
+        pill.style.opacity = "0";
+        return;
+      }
+      pill.style.opacity = "1";
+      pill.style.width = `${link.offsetWidth}px`;
+      pill.style.transform = `translateX(${link.offsetLeft}px)`;
+    };
+
+    const activeLink = () => list.querySelector<HTMLElement>('.nav__link[aria-current="page"]');
+    const syncToActive = () => moveTo(activeLink());
+
+    // Mark the link for the page we are on (the header persists across
+    // navigations, so this has to be refreshed rather than rendered).
+    list.querySelectorAll<HTMLAnchorElement>(".nav__link").forEach((link) => {
+      const path = new URL(link.href).pathname;
+      const active = path === "/" ? location.pathname === "/" : location.pathname.startsWith(path);
+      if (active) link.setAttribute("aria-current", "page");
+      else link.removeAttribute("aria-current");
+
+      if (!link.dataset.wired) {
+        link.addEventListener("pointerenter", () => moveTo(link));
+        link.dataset.wired = "true";
+      }
+    });
+
+    if (!list.dataset.wired) {
+      list.addEventListener("pointerleave", syncToActive);
+      window.addEventListener("resize", syncToActive, { passive: true });
+      list.dataset.wired = "true";
+    }
+
+    // Skip the slide on first paint.
+    pill.style.transition = "none";
+    syncToActive();
+    requestAnimationFrame(() => pill.style.removeProperty("transition"));
+  }
+
+  setupHeader();
+  document.addEventListener("astro:page-load", setupHeader);
+</script>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgb(250 248 245 / 0.72);
+    backdrop-filter: saturate(180%) blur(14px);
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    border-bottom: 1px solid transparent;
+    transition:
+      background-color 0.4s var(--ease-out-soft),
+      border-color 0.4s var(--ease-out-soft),
+      box-shadow 0.4s var(--ease-out-soft);
+  }
+  .header.is-scrolled {
+    background: rgb(250 248 245 / 0.94);
+    border-bottom-color: var(--ink-100);
+    box-shadow: 0 10px 30px -22px rgb(27 25 23 / 0.6);
+  }
+
+  .header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    min-height: 4.75rem;
+    padding-block: 0.5rem;
+    transition: min-height 0.4s var(--ease-out-soft);
+  }
+  .header.is-scrolled .header__inner {
+    min-height: 4rem;
+  }
+
+  /* Reading progress: a hairline that fills as the page scrolls. Purely
+     decorative, so browsers without scroll-driven animations just don't
+     show it. */
+  .header__progress {
+    height: 2px;
+    transform-origin: 0 50%;
+    background: linear-gradient(90deg, var(--red-600), var(--red-700));
+    opacity: 0;
+  }
+  @supports (animation-timeline: scroll()) {
+    .header__progress {
+      opacity: 1;
+      scale: 0 1;
+      animation: progress-grow linear;
+      animation-timeline: scroll(root block);
+    }
+    @keyframes progress-grow {
+      to {
+        scale: 1 1;
+      }
+    }
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    text-decoration: none;
+    color: var(--ink-900);
+  }
+  .brand :global(.brand__mark) {
+    width: 2.2rem;
+    transition: transform 0.6s var(--ease-out-expo);
+  }
+  .header.is-scrolled .brand :global(.brand__mark) {
+    width: 1.9rem;
+  }
+  .brand:hover :global(.brand__mark) {
+    transform: translateY(-3px) rotate(-6deg);
+  }
+  .brand__text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.05;
+    font-family: var(--font-display);
+    font-variation-settings: "opsz" 48;
+  }
+  .brand__name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    letter-spacing: 0.015em;
+    color: var(--ink-700);
+  }
+  .brand__city {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--red-700);
+  }
+
+  .nav-toggle {
+    display: none;
+    background: none;
+    border: 0;
+    padding: 0.5rem;
+    margin: -0.5rem;
+    color: var(--ink-900);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+  }
+  .nav-toggle__close {
+    display: none;
+  }
+  .nav-toggle[aria-expanded="true"] .nav-toggle__open {
+    display: none;
+  }
+  .nav-toggle[aria-expanded="true"] .nav-toggle__close {
+    display: block;
+  }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+  .nav__list {
+    position: relative;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 0.15rem;
+  }
+  .nav__pill {
+    position: absolute;
+    inset-block: 0;
+    left: 0;
+    width: 0;
+    border-radius: var(--radius-full);
+    background: var(--red-50);
+    opacity: 0;
+    transition:
+      transform 0.45s var(--ease-out-expo),
+      width 0.45s var(--ease-out-expo),
+      opacity 0.3s var(--ease-out-soft);
+    z-index: 0;
+  }
+  .nav__link {
+    position: relative;
+    z-index: 1;
+    display: inline-block;
+    padding: 0.5rem 0.9rem;
+    border-radius: var(--radius-full);
+    color: var(--ink-700);
+    font-weight: 500;
+    font-size: var(--text-sm);
+    text-decoration: none;
+    transition: color 0.25s var(--ease-out-soft);
+  }
+  .nav__link:hover,
+  .nav__link[aria-current="page"] {
+    color: var(--red-700);
+  }
+
+  @media (max-width: 859px) {
+    .nav-toggle {
+      display: inline-flex;
+    }
+    .nav {
+      display: none;
+      position: absolute;
+      inset: 100% 0 auto 0;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 1rem;
+      padding: 1rem var(--gutter) 1.5rem;
+      background: var(--paper);
+      border-bottom: 1px solid var(--ink-100);
+      box-shadow: var(--shadow-lg);
+    }
+    .nav.is-open {
+      display: flex;
+      animation: nav-drop 0.4s var(--ease-out-expo) both;
+    }
+    @keyframes nav-drop {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+    }
+    .nav__pill {
+      display: none;
+    }
+    .nav__list {
+      flex-direction: column;
+      gap: 0;
+    }
+    .nav__link {
+      display: block;
+      padding: 0.85rem 0.75rem;
+      font-size: var(--text-base);
+      border-radius: var(--radius-sm);
+    }
+    .nav__link[aria-current="page"] {
+      background: var(--red-50);
+    }
+    .nav__cta {
+      justify-content: center;
+      padding: 0.9rem 1rem;
+      font-size: var(--text-base);
+    }
+    .nav.is-open .nav__list li,
+    .nav.is-open .nav__cta {
+      animation: nav-item 0.5s var(--ease-out-expo) both;
+      animation-delay: calc(var(--i, 0) * 45ms + 60ms);
+    }
+    @keyframes nav-item {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav.is-open,
+    .nav.is-open .nav__list li,
+    .nav.is-open .nav__cta {
+      animation: none;
+    }
+  }
+</style>

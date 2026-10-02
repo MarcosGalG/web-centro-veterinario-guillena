@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://centroveterinarioguillena.com/sitemap-index.xml

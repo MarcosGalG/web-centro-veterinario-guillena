@@ -1,0 +1,29 @@
+---
+/**
+ * Brand logos (WhatsApp, Instagram, Facebook) from the simple-icons set,
+ * inlined as SVG so they inherit the surrounding text colour.
+ */
+import { siWhatsapp, siInstagram, siFacebook } from "simple-icons";
+
+interface Props {
+  name: "whatsapp" | "instagram" | "facebook";
+  size?: number;
+  class?: string;
+}
+
+const icons = { whatsapp: siWhatsapp, instagram: siInstagram, facebook: siFacebook };
+const { name, size = 24, class: className } = Astro.props;
+const icon = icons[name];
+---
+
+<svg
+  role="img"
+  aria-hidden="true"
+  viewBox="0 0 24 24"
+  width={size}
+  height={size}
+  fill="currentColor"
+  class={className}
+>
+  <path d={icon.path}></path>
+</svg>

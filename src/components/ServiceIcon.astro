@@ -1,0 +1,33 @@
+---
+/** Maps a service's `icon` key to a Lucide icon component. */
+import Stethoscope from "@lucide/astro/icons/stethoscope";
+import Syringe from "@lucide/astro/icons/syringe";
+import Microscope from "@lucide/astro/icons/microscope";
+import Scissors from "@lucide/astro/icons/scissors";
+import Hospital from "@lucide/astro/icons/hospital";
+import ShoppingBag from "@lucide/astro/icons/shopping-bag";
+import House from "@lucide/astro/icons/house";
+import ScanHeart from "@lucide/astro/icons/scan-heart";
+import type { IconName } from "@/data/services";
+
+interface Props {
+  name: IconName;
+  size?: number;
+}
+
+const icons = {
+  stethoscope: Stethoscope,
+  syringe: Syringe,
+  microscope: Microscope,
+  scissors: Scissors,
+  hospital: Hospital,
+  "shopping-bag": ShoppingBag,
+  house: House,
+  "scan-heart": ScanHeart,
+};
+
+const { name, size = 24 } = Astro.props;
+const Icon = icons[name];
+---
+
+<Icon size={size} stroke-width={1.75} aria-hidden="true" />

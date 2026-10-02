@@ -1,0 +1,87 @@
+---
+/**
+ * Live "Abierto ahora / Cerrado" badge.
+ *
+ * Rendered hidden and revealed by the inline script once it has computed the
+ * status in the clinic's time zone (not the visitor's). Without JS nothing is
+ * shown, so the page never claims a wrong status.
+ */
+import { clinic } from "@/data/clinic";
+---
+
+<p class="open-status" data-open-status hidden>
+  <span class="badge">
+    <span class="badge__dot"></span>
+    <span data-open-status-text></span>
+  </span>
+</p>
+
+<script is:inline define:vars={{ hours: clinic.hours, timeZone: clinic.timeZone }}>
+  (function () {
+    var statuses = document.querySelectorAll("[data-open-status]:not([data-ready])");
+    if (!statuses.length) return;
+
+    var dayKeys = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+    var dayNames = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+
+    var parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: timeZone,
+      weekday: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).formatToParts(new Date());
+    var get = function (type) {
+      var p = parts.find(function (x) {
+        return x.type === type;
+      });
+      return p ? p.value : "";
+    };
+    var dayIndex = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(get("weekday"));
+    var minutes = (parseInt(get("hour"), 10) % 24) * 60 + parseInt(get("minute"), 10);
+    var toMin = function (hhmm) {
+      var s = hhmm.split(":");
+      return parseInt(s[0], 10) * 60 + parseInt(s[1], 10);
+    };
+
+    var today = hours[dayKeys[dayIndex]] || [];
+    var openRange = today.find(function (r) {
+      return minutes >= toMin(r.open) && minutes < toMin(r.close);
+    });
+
+    var label;
+    if (openRange) {
+      label = "Abierto ahora · cierra a las " + openRange.close;
+    } else {
+      label = "Cerrado ahora";
+      var next = today.find(function (r) {
+        return minutes < toMin(r.open);
+      });
+      if (next) {
+        label += " · abre a las " + next.open;
+      } else {
+        for (var i = 1; i <= 7; i++) {
+          var d = (dayIndex + i) % 7;
+          var ranges = hours[dayKeys[d]] || [];
+          if (ranges.length) {
+            label += " · abre el " + dayNames[d] + " a las " + ranges[0].open;
+            break;
+          }
+        }
+      }
+    }
+
+    statuses.forEach(function (status) {
+      status.querySelector(".badge").classList.add(openRange ? "badge--open" : "badge--closed");
+      status.querySelector("[data-open-status-text]").textContent = label;
+      status.setAttribute("data-ready", "");
+      status.hidden = false;
+    });
+  })();
+</script>
+
+<style>
+  .open-status {
+    margin: 0;
+  }
+</style>

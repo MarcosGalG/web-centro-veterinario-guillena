@@ -1,0 +1,95 @@
+---
+import OpenStatus from "@/components/OpenStatus.astro";
+import { groupedHours } from "@/data/clinic";
+
+interface Props {
+  /** Smaller, single-column rendering for the footer (dark background). */
+  compact?: boolean;
+  /** Render the live "Abierto ahora / Cerrado" badge above the table. */
+  showStatus?: boolean;
+}
+
+const { compact = false, showStatus = false } = Astro.props;
+const rows = groupedHours();
+---
+
+<div class:list={["hours", { "hours--compact": compact }]}>
+  {
+    showStatus && (
+      <div class="hours__status">
+        <OpenStatus />
+      </div>
+    )
+  }
+  <dl class="hours__list">
+    {
+      rows.map(({ label, ranges }) => (
+        <div class:list={["hours__row", { "hours__row--closed": ranges.length === 0 }]}>
+          <dt>{label}</dt>
+          <dd>
+            {ranges.length === 0
+              ? "Cerrado"
+              : ranges.map((r) => (
+                  <span>
+                    {r.open} – {r.close}
+                  </span>
+                ))}
+          </dd>
+        </div>
+      ))
+    }
+  </dl>
+</div>
+
+<style>
+  .hours__status {
+    margin: 0 0 1rem;
+  }
+  .hours__list {
+    margin: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+  .hours__row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px dashed var(--ink-200);
+  }
+  .hours__row:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+  .hours__row dt {
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .hours__row dd {
+    margin: 0;
+    text-align: right;
+    color: var(--ink-700);
+    font-variant-numeric: tabular-nums;
+    display: grid;
+    gap: 0.1rem;
+  }
+  .hours__row dd span {
+    white-space: nowrap;
+  }
+  .hours__row--closed dd {
+    color: var(--red-700);
+    font-weight: 600;
+  }
+
+  .hours--compact .hours__row {
+    border-color: rgb(255 255 255 / 0.12);
+    font-size: var(--text-sm);
+  }
+  .hours--compact .hours__row dd {
+    color: inherit;
+  }
+  .hours--compact .hours__row--closed dd {
+    color: var(--ink-300);
+    font-weight: 500;
+  }
+</style>

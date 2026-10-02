@@ -1,0 +1,349 @@
+---
+import Send from "@lucide/astro/icons/send";
+import CircleCheck from "@lucide/astro/icons/circle-check";
+import { clinic, whatsappUrl } from "@/data/clinic";
+
+// Optional Cloudflare Turnstile (free, privacy-friendly CAPTCHA). Rendered only
+// when a site key is provided at build time; the honeypot works regardless.
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined;
+---
+
+<form
+  id="formulario"
+  class="contact-form"
+  action="/api/contact"
+  method="post"
+  novalidate
+  data-contact-form
+>
+  <div class="contact-form__status" role="status" aria-live="polite" data-status hidden></div>
+
+  <div class="contact-form__fields" data-fields>
+    <div class="field">
+      <label for="cf-name">Nombre *</label>
+      <input
+        id="cf-name"
+        class="input"
+        name="name"
+        type="text"
+        required
+        minlength="2"
+        maxlength="80"
+        autocomplete="name"
+      />
+      <p class="field__error" data-error-for="name"></p>
+    </div>
+
+    <div class="contact-form__row">
+      <div class="field">
+        <label for="cf-email">Correo electrónico *</label>
+        <input
+          id="cf-email"
+          class="input"
+          name="email"
+          type="email"
+          required
+          maxlength="254"
+          autocomplete="email"
+          inputmode="email"
+        />
+        <p class="field__error" data-error-for="email"></p>
+      </div>
+      <div class="field">
+        <label for="cf-phone">Teléfono</label>
+        <input
+          id="cf-phone"
+          class="input"
+          name="phone"
+          type="tel"
+          maxlength="30"
+          autocomplete="tel"
+          inputmode="tel"
+        />
+        <span class="hint">Si prefieres que te llamemos.</span>
+        <p class="field__error" data-error-for="phone"></p>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="cf-pet">Tu mascota</label>
+      <input
+        id="cf-pet"
+        class="input"
+        name="pet"
+        type="text"
+        maxlength="40"
+        placeholder="Perro, gato, conejo…"
+      />
+      <p class="field__error" data-error-for="pet"></p>
+    </div>
+
+    <div class="field">
+      <label for="cf-message">¿En qué podemos ayudarte? *</label>
+      <textarea
+        id="cf-message"
+        class="input"
+        name="message"
+        required
+        minlength="10"
+        maxlength="2000"
+        rows="5"></textarea>
+      <p class="field__error" data-error-for="message"></p>
+    </div>
+
+    <!-- Honeypot: hidden from people, filled in by bots. Server rejects if non-empty. -->
+    <div class="contact-form__hp" aria-hidden="true">
+      <label for="cf-website">No rellenes este campo</label>
+      <input id="cf-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+    </div>
+
+    <div class="field">
+      <label class="checkbox">
+        <input type="checkbox" name="consent" required />
+        <span>
+          He leído la <a href="/privacidad/">política de privacidad</a> y acepto que mis datos se usen
+          para responder a esta consulta. *
+        </span>
+      </label>
+      <p class="field__error" data-error-for="consent"></p>
+    </div>
+
+    {
+      turnstileSiteKey && (
+        <div class="field">
+          <div class="cf-turnstile" data-sitekey={turnstileSiteKey} data-language="es" />
+        </div>
+      )
+    }
+
+    <button type="submit" class="btn btn--primary btn--lg contact-form__submit" data-submit>
+      <Send size={18} aria-hidden="true" />
+      <span>Enviar consulta</span>
+    </button>
+    <p class="contact-form__alt">
+      ¿Es urgente? Llama al
+      <a href={`tel:${clinic.phones.landline.e164}`}>{clinic.phones.landline.display}</a> o escribe por
+      <a href={whatsappUrl} target="_blank" rel="noopener">WhatsApp</a>.
+    </p>
+  </div>
+
+  <template data-success-template>
+    <div class="contact-form__success">
+      <CircleCheck size={40} aria-hidden="true" />
+      <h3>Mensaje enviado</h3>
+      <p>
+        Gracias por escribirnos. Te responderemos lo antes posible en horario de consulta. Si es
+        urgente, llámanos al <a href={`tel:${clinic.phones.landline.e164}`}
+          >{clinic.phones.landline.display}</a
+        >.
+      </p>
+    </div>
+  </template>
+</form>
+
+{
+  turnstileSiteKey && (
+    <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
+  )
+}
+
+<script>
+  const form = document.querySelector<HTMLFormElement>("[data-contact-form]");
+
+  if (form) {
+    const status = form.querySelector<HTMLElement>("[data-status]")!;
+    const fields = form.querySelector<HTMLElement>("[data-fields]")!;
+    const submit = form.querySelector<HTMLButtonElement>("[data-submit]")!;
+    const successTemplate = form.querySelector<HTMLTemplateElement>("[data-success-template]")!;
+
+    const messages: Record<string, string> = {
+      captcha: "No hemos podido verificar que eres una persona. Vuelve a intentarlo.",
+      not_configured:
+        "El formulario no está disponible en este momento. Llámanos o escríbenos por WhatsApp.",
+      send_failed: "No se ha podido enviar el mensaje. Inténtalo de nuevo en unos minutos.",
+      network: "No hay conexión. Comprueba tu red e inténtalo de nuevo.",
+      generic: "Ha ocurrido un error inesperado. Inténtalo de nuevo o llámanos.",
+    };
+
+    const showStatus = (text: string, kind: "error" | "info") => {
+      status.textContent = text;
+      status.dataset.kind = kind;
+      status.hidden = false;
+    };
+
+    const clearErrors = () => {
+      status.hidden = true;
+      form.querySelectorAll<HTMLElement>("[data-error-for]").forEach((el) => (el.textContent = ""));
+      form.querySelectorAll("[aria-invalid]").forEach((el) => el.removeAttribute("aria-invalid"));
+    };
+
+    const showFieldErrors = (errors: Record<string, string>) => {
+      let first: HTMLElement | null = null;
+      for (const [name, message] of Object.entries(errors)) {
+        const el = form.querySelector<HTMLElement>(`[data-error-for="${name}"]`);
+        const input = form.querySelector<HTMLElement>(`[name="${name}"]`);
+        if (el) el.textContent = message;
+        if (input) {
+          input.setAttribute("aria-invalid", "true");
+          first ??= input;
+        }
+      }
+      first?.focus();
+    };
+
+    // If the no-JS path redirected back with ?error=1, tell the visitor.
+    if (new URLSearchParams(location.search).has("error")) {
+      showStatus(messages.generic, "error");
+    }
+
+    // Client-side validation mirrors the server rules so most mistakes are caught
+    // before a request is made. The server remains the source of truth.
+    const validateLocally = (): Record<string, string> => {
+      const errors: Record<string, string> = {};
+      const data = new FormData(form);
+      const get = (k: string) => String(data.get(k) ?? "").trim();
+      if (get("name").length < 2) errors.name = "Escribe tu nombre.";
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(get("email")))
+        errors.email = "Revisa el correo electrónico, parece incorrecto.";
+      if (get("message").length < 10)
+        errors.message = "Cuéntanos un poco más (mínimo 10 caracteres).";
+      if (!data.get("consent")) errors.consent = "Necesitamos tu consentimiento para responderte.";
+      return errors;
+    };
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      clearErrors();
+
+      const localErrors = validateLocally();
+      if (Object.keys(localErrors).length) {
+        showFieldErrors(localErrors);
+        return;
+      }
+
+      submit.disabled = true;
+      submit.querySelector("span")!.textContent = "Enviando…";
+
+      try {
+        const res = await fetch(form.action, {
+          method: "POST",
+          body: new FormData(form),
+          headers: { Accept: "application/json" },
+        });
+        const json = (await res.json().catch(() => ({}))) as {
+          ok?: boolean;
+          errors?: Record<string, string>;
+          error?: string;
+        };
+
+        if (res.ok && json.ok) {
+          fields.replaceWith(successTemplate.content.cloneNode(true));
+          form.scrollIntoView({ behavior: "smooth", block: "start" });
+          return;
+        }
+        if (json.errors) {
+          showFieldErrors(json.errors);
+        } else {
+          showStatus(messages[json.error ?? "generic"] ?? messages.generic, "error");
+        }
+      } catch {
+        showStatus(messages.network, "error");
+      } finally {
+        submit.disabled = false;
+        const label = submit.querySelector("span");
+        if (label) label.textContent = "Enviar consulta";
+      }
+    });
+  }
+</script>
+
+<style>
+  .contact-form__row {
+    display: grid;
+    gap: 0 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  }
+  .field__error {
+    margin: 0;
+    font-size: var(--text-xs);
+    color: var(--red-700);
+    font-weight: 500;
+    min-height: 0;
+  }
+  .field__error:empty {
+    display: none;
+  }
+  .contact-form__hp {
+    position: absolute;
+    left: -9999px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  .contact-form__submit {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+  @media (min-width: 640px) {
+    .contact-form__submit {
+      width: auto;
+    }
+  }
+  .contact-form__alt {
+    margin: 1rem 0 0;
+    font-size: var(--text-sm);
+    color: var(--ink-500);
+  }
+
+  .contact-form__status {
+    padding: 0.85rem 1rem;
+    border-radius: var(--radius-sm);
+    margin-bottom: 1.25rem;
+    font-size: var(--text-sm);
+    font-weight: 500;
+  }
+  .contact-form__status[data-kind="error"] {
+    background: var(--red-50);
+    color: var(--red-800);
+    border: 1px solid var(--red-100);
+  }
+  .contact-form__status[data-kind="info"] {
+    background: var(--ink-100);
+    color: var(--ink-700);
+  }
+
+  .contact-form :global(.contact-form__success) {
+    text-align: center;
+    padding: 2rem 1rem;
+    animation: success-in 0.7s var(--ease-out-expo) both;
+  }
+  .contact-form :global(.contact-form__success svg) {
+    margin: 0 auto 1rem;
+    color: var(--green-600);
+    animation: success-pop 0.8s var(--ease-out-expo) 0.15s both;
+  }
+  @keyframes success-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+  }
+  @keyframes success-pop {
+    from {
+      opacity: 0;
+      transform: scale(0.5) rotate(-12deg);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .contact-form :global(.contact-form__success),
+    .contact-form :global(.contact-form__success svg) {
+      animation: none;
+    }
+  }
+  .contact-form :global(.contact-form__success p) {
+    margin: 0 auto;
+    max-width: 44ch;
+    color: var(--ink-700);
+  }
+</style>

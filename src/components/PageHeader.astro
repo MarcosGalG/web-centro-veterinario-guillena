@@ -1,0 +1,68 @@
+---
+import Bubbles from "@/components/Bubbles.astro";
+import Seahorse from "@/components/Seahorse.astro";
+
+interface Props {
+  eyebrow?: string;
+  title: string;
+  text?: string;
+}
+const { eyebrow, title, text } = Astro.props;
+---
+
+<header class="page-header">
+  <Bubbles count={8} class="page-header__bubbles" />
+  <Seahorse variant="ghost" class="page-header__mark is-swaying" />
+
+  <div class="container page-header__inner">
+    {
+      eyebrow && (
+        <p class="eyebrow" data-reveal="fade">
+          {eyebrow}
+        </p>
+      )
+    }
+    <h1 class="reveal-words">{title}</h1>
+    {
+      text && (
+        <p class="page-header__text" data-reveal="up" style="--reveal-delay:260ms">
+          {text}
+        </p>
+      )
+    }
+  </div>
+</header>
+
+<style>
+  .page-header {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    padding-block: clamp(3rem, 7vw, 5.5rem);
+    background: radial-gradient(70% 110% at 100% 0%, var(--red-50), transparent 58%), var(--paper);
+    border-bottom: 1px solid var(--ink-100);
+  }
+  .page-header :global(.page-header__mark) {
+    position: absolute;
+    right: -4%;
+    top: -30%;
+    width: min(34vw, 340px);
+    color: var(--red-600);
+    opacity: 0.06;
+    z-index: 0;
+  }
+  .page-header__inner {
+    position: relative;
+    z-index: 1;
+    max-width: 760px;
+  }
+  .page-header h1 {
+    margin-bottom: 0.85rem;
+  }
+  .page-header__text {
+    margin: 0;
+    font-size: var(--text-lg);
+    color: var(--ink-700);
+    max-width: 58ch;
+  }
+</style>

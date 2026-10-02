@@ -1,0 +1,72 @@
+---
+import ArrowRight from "@lucide/astro/icons/arrow-right";
+import ServiceIcon from "@/components/ServiceIcon.astro";
+import type { Service } from "@/data/services";
+
+interface Props {
+  service: Service;
+}
+const { service } = Astro.props;
+---
+
+<a href={`/servicios/#${service.slug}`} class="service-card">
+  <span class="icon-circle">
+    <ServiceIcon name={service.icon} size={26} />
+  </span>
+  <h3 class="service-card__title">{service.title}</h3>
+  <p class="service-card__summary">{service.summary}</p>
+  <span class="service-card__more">
+    Más información
+    <ArrowRight size={16} aria-hidden="true" />
+  </span>
+</a>
+
+<style>
+  .service-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: clamp(1.25rem, 3vw, 1.75rem);
+    background: var(--surface);
+    border: 1px solid var(--ink-100);
+    border-radius: var(--radius);
+    text-decoration: none;
+    color: inherit;
+    box-shadow: var(--shadow-sm);
+    transition:
+      transform 0.25s var(--ease),
+      box-shadow 0.25s var(--ease),
+      border-color 0.25s var(--ease);
+  }
+  .service-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--red-100);
+    color: inherit;
+  }
+  .service-card__title {
+    margin: 0.25rem 0 0;
+    font-size: var(--text-lg);
+  }
+  .service-card__summary {
+    margin: 0;
+    color: var(--ink-500);
+    font-size: var(--text-sm);
+    flex: 1;
+  }
+  .service-card__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--red-700);
+    margin-top: 0.25rem;
+  }
+  .service-card__more svg {
+    transition: transform 0.2s var(--ease);
+  }
+  .service-card:hover .service-card__more svg {
+    transform: translateX(3px);
+  }
+</style>
